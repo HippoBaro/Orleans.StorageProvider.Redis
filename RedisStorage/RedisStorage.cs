@@ -8,7 +8,7 @@ using Orleans.Serialization;
 using Orleans.Storage;
 using StackExchange.Redis;
 
-namespace Orleans.StorageProviders
+namespace Orleans.StorageProviders.RedisStorage
 {
     public class RedisStorage : IStorageProvider
     {
@@ -22,7 +22,7 @@ namespace Orleans.StorageProviders
 
         private string serviceId;
         private bool useJsonFormat;
-        private Newtonsoft.Json.JsonSerializerSettings jsonSettings;
+        private JsonSerializerSettings jsonSettings;
         private SerializationManager serializationManager;
 
         /// <summary> Name of this storage provider instance. </summary>
@@ -40,7 +40,7 @@ namespace Orleans.StorageProviders
         {
             Name = name;
             serviceId = providerRuntime.ServiceId.ToString();
-            this.serializationManager = providerRuntime.ServiceProvider.GetRequiredService<SerializationManager>();
+            serializationManager = providerRuntime.ServiceProvider.GetRequiredService<SerializationManager>();
 
             if (!config.Properties.ContainsKey(REDIS_CONNECTION_STRING) ||
                 string.IsNullOrWhiteSpace(config.Properties[REDIS_CONNECTION_STRING]))
@@ -70,8 +70,7 @@ namespace Orleans.StorageProviders
                 useJsonFormat = "true".Equals(config.Properties[USE_JSON_FORMAT_PROPERTY], StringComparison.OrdinalIgnoreCase);
 
 
-            jsonSettings = new Newtonsoft.Json.JsonSerializerSettings()
-            {
+            jsonSettings = new JsonSerializerSettings {
                 TypeNameHandling = TypeNameHandling.All,
                 PreserveReferencesHandling = PreserveReferencesHandling.Objects,
                 DateFormatHandling = DateFormatHandling.IsoDateFormat,
